@@ -1,0 +1,21 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+<!-- Название у нас будет products -->
+{% block title %}
+News
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим пост -->
+{% block content %}
+<h1>Новость</h1>
+
+<h4>{{ A_news.title }}</h4>
+{% for category in A_news.category.all %}
+    <a href="{% url 'category_list' category.id %}" style="...">"{{ category }}"</a>
+{% endfor %}
+<h6>{{ A_news.time_create|date:'d M Y' }}</h6>
+<br>{{ A_news.content }}
+
+{% endblock content %}

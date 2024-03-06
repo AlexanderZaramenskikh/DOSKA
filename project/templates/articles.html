@@ -1,0 +1,26 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+Статьи
+{% endblock title %}
+
+{% block content %}
+    <h1>Все статьи</h1>
+    <h3>Статей на странице: {{ Articles|length }}</h3>
+
+    <hr>
+    {% if Articles %}
+        <!-- Для каждого товара будете генерироваться новая строчка -->
+        {% for article in Articles %}
+            <!-- Здесь можно получать доступ к полям объекта модели. -->
+            <h5><a href="http://127.0.0.1:8000/articles/{{ article.id }}">{{ article.title }}</a></h5>
+            {{ article.time_create|date:'d M Y' }}
+            {{ article.content|truncatewords:20 }}
+        {% endfor %}
+    {% else %}
+        <!-- Если товаров нет, говорим, что товаров нет ;) -->
+        <h2>Новостей пока нет!</h2>
+    {% endif %}
+{% endblock content %}
