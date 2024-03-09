@@ -1,7 +1,11 @@
+import datetime
+
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -25,10 +29,16 @@ class Author(models.Model):
         self.rating = post_rating * 3 + comment_rating + post_comment_rating
         self.save()
 
+    def __str__(self):
+        return f'{self.user}'
+
 
 class Category(models.Model):
     category_name = models.CharField(unique=True, max_length=100)
     subscribers = models.ManyToManyField(User, blank=True)
+
+    def __str__(self):
+        return self.category_name
 
 
 class Post(models.Model):
@@ -82,3 +92,4 @@ class Comment(models.Model):
 class UserCategory(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+

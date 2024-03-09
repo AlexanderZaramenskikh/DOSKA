@@ -99,24 +99,13 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
     success_url = reverse_lazy('news_list')
 
     def form_valid(self, form):
-        form.instance.choice = 'NE'
         post = form.save(commit=False)
-        post.author = self.request.user.author
-
-        user_id = self.request.user.id
-        author_id = Author.objects.get(user=user_id)
-        date_create = date.today()
-        date_list = [dt.strftime("%Y-%m-%d") for dt in Post.objects.filter(author=author_id).values_list('time_create', flat=True)]
-        print(f'post = {post}, author_id = {author_id}, date_create = {date_create}, date_list = {date_list}')
-        print(f'Количество публикаций пользователя {self.request.user} - {date_list.count(date_list[-1])}')
-        if date_list.count(date_list[-1]) <= 3:
-            post.save()
-            print('Пост сохранен')
-            return super().form_valid(form)
-        else:
-            print('Пост не сохранен')
-            print(self.get_context_data(form=form))
-            return redirect('/to_many_post/')
+        today = datetime.date.today()
+        post_limit = Post.objects.filter(author=post.author, time_create__date=today).count()
+        if post_limit >= 3:
+            return render(self.request, 'to_many_post.html', {'author': post.author})
+        post.save()
+        return super().form_valid(form)
 
 
 class NewsEdit(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):

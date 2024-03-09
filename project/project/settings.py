@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -128,6 +129,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+SITE_URL = 'http://127.0.01:8000'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static"
@@ -163,3 +165,6 @@ EMAIL_HOST_USER = login
 EMAIL_HOST_PASSWORD = host_password
 EMAIL_USE_SSL = True
 DEFAULT_FROM_EMAIL = f"{EMAIL_HOST_USER}@yandex.ru"
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25
