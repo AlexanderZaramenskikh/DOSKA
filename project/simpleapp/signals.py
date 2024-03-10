@@ -1,12 +1,46 @@
-from django.db.models.signals import post_save
+from django.core.mail import EmailMultiAlternatives
+from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
-import datetime
-from .models import Post,PostCategory
-from django.core.exceptions import ValidationError
+from django.template.loader import render_to_string
 
-#@receiver(post_save, sender=Post)
-#def post_limit(sender, instance, **kwargs):
-    #today = datetime.date.today()
-    #post_limit = Post.objects.filter(author=instance.author , time_create__date=today).count()
-    #if post_limit >= 3:
-        #raise ValidationError("Нельзя публиковать больше 3 постов в сутки!!!")
+from simpleapp.models import PostCategory
+from .models import UserCategory
+from django.contrib.auth.models import User
+
+
+def send_notifications(preview, pk, title, subscribers):
+    html_content = render_to_string(
+        'post_created_email.html',
+        {
+            'text': preview,
+            'link': f"{'http://127.0.01:8000'}/news/{pk}"
+        }
+    )
+
+    msg = EmailMultiAlternatives(
+        subject=title,
+        body='',
+        from_email='dadvzhvda@yandex.ru',
+        to=subscribers,
+    )
+
+    msg.attach_alternative(html_content, 'text/html')
+    msg.send()
+
+
+@receiver(m2m_changed, sender=PostCategory)
+def notify_about_new_post(sender, instance, **kwargs):
+    if kwargs['action'] == 'post_add':
+        categories = instance.category.all()
+        print(f'categories - {categories}')
+        subscribers_emails = []
+
+        for cat in categories:
+            subscribers = list(UserCategory.objects.filter(category=cat).values_list('user_id', flat=True))
+            subscribers_emails = [User.objects.filter(id=s).values_list('email', flat=True) for s in subscribers]
+            print(f'subscribers = {subscribers}, emails = {subscribers_emails}')
+        print(f'subscribers_emails - {subscribers_emails}')
+
+        send_notifications(preview=instance.preview, pk=instance.pk, title=instance.title, subscribers=subscribers_emails)
+
+
