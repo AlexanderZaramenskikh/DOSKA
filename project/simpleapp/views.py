@@ -11,17 +11,13 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives, mail_managers, send_mail
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
-from django.http import HttpResponse
 
 from .models import Post, Category, Author, UserCategory
 from .filters import PostFilter
 from .forms import PostForm
 from django.db.models.signals import post_save
-
-
-class IndexView(View):
-    def get(self, request):
-        return HttpResponse('Hello!')
+from django.http import HttpResponse
+from django.views import View
 
 
 class NewsList(ListView):
