@@ -42,10 +42,16 @@
                   {% else %}
                   <ul class="navbar-nav ml-auto">
                       <li class="nav-item active">
-                          <a class="nav-link" href="/news/create/">Создать новость</a>
+                          <a class="nav-link" href="/news/create/">Создать пост</a>
                       </li>
                       <li class="nav-item active">
                           <a class="nav-link" href="http://127.0.0.1:8000/sign/personal_acc/">Личный кабинет</a>
+                      </li>
+                      <li class="nav-item active">
+                          <a class="nav-link" href="/news/">Новости</a>
+                      </li>
+                      <li class="nav-item active">
+                          <a class="nav-link" href="/articles/">Статьи</a>
                       </li>
                       <li class="nav-item active">
                           <a class="nav-link" href="{% url 'logout_confirm' %}">Выйти</a>

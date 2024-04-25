@@ -11,6 +11,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives, mail_managers, send_mail
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
+from django.contrib.auth.views import TemplateView
 
 from .models import Post, Category, Author, UserCategory
 from .filters import PostFilter
@@ -18,7 +19,7 @@ from .forms import PostForm
 from django.db.models.signals import post_save
 from django.http import HttpResponse
 from django.views import View
-
+from django.core.cache import cache
 
 class NewsList(ListView):
     model = Post
@@ -73,7 +74,7 @@ class ArticleList(ListView):
     context_object_name = 'Articles'
 
     def get_queryset(self):
-        queryset = Post.objects.filter(choice='AR').order_by('-date')
+        queryset = Post.objects.filter(choice='AR').order_by('-time_create')
         return queryset
 
 
@@ -81,10 +82,16 @@ class ArticleDetail(DetailView):
     model = Post
     template_name = 'article.html'
     context_object_name = 'Article'
+    queryset = Post.objects.filter(choice='AR')
 
-    def get_queryset(self):
-        queryset = Post.objects.filter(choice='AR')
-        return queryset
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'article-{self.kwargs["pk"]}',None)
+
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'article-{self.kwargs["pk"]}', obj)
+
+        return obj
 
 
 class NewsCreate(PermissionRequiredMixin, CreateView):
@@ -176,3 +183,6 @@ def subscribe(request, pk):
 
 def to_many_post(request):
     return render(request, 'news/to_many_post.html')
+
+class HomeView(TemplateView):
+    template_name = 'home.html'
